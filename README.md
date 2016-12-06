@@ -1,7 +1,7 @@
 # [Thing Translator](https://oxism.com/thing-translator/)
 ### [An AI Experiment](https://aiexperiments.withgoogle.com/)
 
-fork of [dmotz/thing-translator](https://github.com/dmotz/thing-translator/) that
+Fork of [dmotz/thing-translator](https://github.com/dmotz/thing-translator/) that
 adds google text to speech as fallback for languages not supported by Speech
 Synthesis API.
 
