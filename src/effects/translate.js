@@ -3,8 +3,19 @@ import he from 'he'
 import {apiUrls} from '../config'
 
 const speechSupport = window.speechSynthesis && window.SpeechSynthesisUtterance
+const audioContext = window.AudioContext || window.webkitAudioContext;
+const context = new audioContext();
 const filterLong    = true
 const lengthLimit   = 8
+const base64ToArrayBuffer = (base64) => {
+  let binary_string = window.atob(base64);
+  let len = binary_string.length;
+  let bytes = new Uint8Array( len );
+  for (let i = 0; i < len; i++)        {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
 
 const speak = (text, lang, cb) => {
   if (!speechSupport) {
@@ -13,13 +24,37 @@ const speak = (text, lang, cb) => {
   }
 
   const msg = new SpeechSynthesisUtterance
-  msg.text     = text
-  msg.lang     = voices[voiceMap[lang]].lang
-  msg.voiceURI = voices[voiceMap[lang]].voiceURI
-  cb && msg.addEventListener('end', cb)
+  msg.text = text
 
   if (text) {
-    speechSynthesis.speak(msg)
+    if (voices[voiceMap[lang]]) {
+      cb && msg.addEventListener('end', cb)
+      msg.lang = voices[voiceMap[lang]].lang
+      msg.voiceURI = voices[voiceMap[lang]].voiceURI
+      speechSynthesis.speak(msg)
+    } else {
+      const audioURL = `${apiUrls.textToSpeech}${text}/${langMap[lang]}`;
+
+      http.get(`${apiUrls.textToSpeech}${text}/${langMap[lang]}`, (err, res, body) => {
+        if (err) {
+          return failureState()
+        }
+
+        const arrayBuffer = base64ToArrayBuffer(body)
+
+        context.decodeAudioData(arrayBuffer, (buffer) => {
+          const audioBuffer = buffer
+          if (audioBuffer) {
+            let source = context.createBufferSource()
+            cb && setTimeout(cb, buffer.duration * 1000)
+
+            source.buffer = audioBuffer
+            source.connect(context.destination)
+            source.start(0)
+          }
+        })
+      })
+    }
   } else {
     cb && cb()
   }
@@ -41,7 +76,9 @@ const setVoiceMap = voiceList => {
     korean:   /ko(-|_)kr/i,
     japanese: /ja(-|_)jp/i,
     dutch:    /nl(-|_)nl/i,
-    hindi:    /hi(-|_)in/i
+    hindi:    /hi(-|_)in/i,
+    vietnamese: /vi(-|_)vi/i,
+    arabic: /ar(-|_)ar/i,
   }
 
   voiceMap = Object.keys(voiceRxs).reduce((a, k) => {
@@ -57,7 +94,6 @@ if (voices.length) {
   speechSynthesis.onvoiceschanged = () => setVoiceMap(speechSynthesis.getVoices())
 }
 
-
 const langMap = {
   english:  'en',
   spanish:  'es',
@@ -68,7 +104,9 @@ const langMap = {
   korean:   'ko',
   japanese: 'ja',
   dutch:    'nl',
-  hindi:    'hi'
+  hindi:    'hi',
+  vietnamese: 'vi',
+  arabic: 'ar',
 }
 
 const cache = {}

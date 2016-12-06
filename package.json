@@ -11,7 +11,7 @@
   },
   "scripts": {
     "bundle": "NODE_ENV=production browserify -e src/app.js -g babelify -g envify -g unassertify -g uglifyify | uglifyjs > app.js",
-    "dev": "parallelshell 'npm run watch' 'npm run watch-style'",
+    "dev": "parallelshell 'npm run watch' 'npm run watch-style' 'node server/server.js'",
     "watch": "budo src/app.js --live -- -t babelify",
     "watch-style": "stylus -c -u nib -w style/main.styl -o app.css"
   },
@@ -31,7 +31,10 @@
     "stylus": "^0.54.5",
     "uglify-js": "^2.7.4",
     "uglifyify": "^3.0.4",
-    "unassertify": "^2.0.3"
+    "unassertify": "^2.0.3",
+    "request": "2.34.0",
+    "stream-buffers": "0.2.5",
+    "express": "^4.14.0"
   },
   "browserify": {
     "transform": [
