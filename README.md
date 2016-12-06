@@ -1,6 +1,9 @@
 # [Thing Translator](https://oxism.com/thing-translator/)
 ### [An AI Experiment](https://aiexperiments.withgoogle.com/)
-✨ [Try the live demo here.](https://oxism.com/thing-translator/) ✨
+
+fork of [dmotz/thing-translator](https://github.com/dmotz/thing-translator/) that
+adds google text to speech as fallback for languages not supported by Speech
+Synthesis API.
 
 ![](https://oxism.com/thing-translator/thing-translator.gif)
 
